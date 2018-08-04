@@ -13,9 +13,6 @@ import Network.HTTP.Client       (Manager, Request, Response, httpLbs, parseRequ
 import Network.HTTP.Types.Status (statusCode)
 import Safe                      (headMay)
 
-seed :: String -> Step
-seed url = Step (Url url) mempty []
-
 parse :: MonadCatch m => Url -> EitherT SomeException m Request
 parse (Url u) = liftTry (parseRequest u)
 
