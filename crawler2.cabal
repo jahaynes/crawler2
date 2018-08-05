@@ -14,12 +14,15 @@ executable crawler
                        bytestring,
                        case-insensitive,
                        connection,
+                       containers,
                        http-client,
                        http-client-tls,
                        http-types,
                        mtl,
+                       network-uri,
                        safe,
                        safe-exceptions,
+                       tagsoup,
                        time
   
   hs-source-dirs:      src

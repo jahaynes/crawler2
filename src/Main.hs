@@ -3,8 +3,10 @@
 module Main where
 
 import Crawl
+import CrawlTypes
 import EitherT
 
+import qualified Data.Set  as S                 (empty)
 import Network.HTTP.Client          
 import Network.HTTP.Client.TLS      (mkManagerSettings)
 import Network.Connection           (TLSSettings (TLSSettingsSimple))
@@ -17,7 +19,13 @@ main = do
 
     http <- newManager (mkManagerSettings (TLSSettingsSimple True False False) Nothing) -- tlsManagerSettings
 
-    x <- runEitherT $ steps http (const True) (seed site)
+    x <- runEitherT $ urls [Url site] S.empty http (const True)
 
-    print x
+    case x of
+        Left e -> error $ show e
+        Right c -> do
 
+            print $ map crawled_getHistory $ c
+
+            --let bs = crawled_getContents c
+            --L8.writeFile "./lol" bs

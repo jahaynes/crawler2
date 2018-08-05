@@ -3,7 +3,7 @@ module CrawlTypes where
 import Data.ByteString.Lazy (ByteString)
 import Network.HTTP.Client  (CookieJar)
 
-newtype Url = Url String deriving Show
+newtype Url = Url String deriving (Eq, Ord, Show)
 
 data Crawled = Crawled
              { crawled_getCookies  :: CookieJar
