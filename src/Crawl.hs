@@ -10,7 +10,7 @@ import Parse
 
 import Control.Exception.Safe       (SomeException)
 import Data.Monoid                  ((<>))
-import Data.Set
+import Data.Set (Set)
 import qualified Data.Set as S
 import Data.Time                    (getCurrentTime)
 import Network.HTTP.Client
@@ -24,6 +24,7 @@ data Step = Step
 seed :: String -> Step
 seed url = Step (Url url) mempty []
 
+seedu :: Url -> Step
 seedu url = Step url mempty []
 
 urls :: [Url] -> Set Url -> Manager -> (Url -> Bool) -> EitherT SomeException IO [Crawled]
@@ -36,9 +37,9 @@ urls (u:rls) done http urlCheck
 
         let crawledUrl = head . crawled_getHistory $ x
             crawledPage = crawled_getContents $ x
-            urls' = scrape crawledUrl crawledPage
+            urls' = filter urlCheck . scrape crawledUrl $ crawledPage
 
-        liftTry $ print urls'
+        liftTry $ print $ length urls'
 
         urls (urls' ++ rls) (S.insert u done) http urlCheck
 

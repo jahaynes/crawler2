@@ -20,6 +20,7 @@ executable crawler
                        http-types,
                        mtl,
                        network-uri,
+                       parsec,
                        safe,
                        safe-exceptions,
                        tagsoup,

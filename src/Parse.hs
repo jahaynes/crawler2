@@ -3,13 +3,13 @@
 module Parse where
 
 import CrawlTypes
+import Url
 
 import           Data.ByteString.Lazy       (ByteString)
 import qualified Data.ByteString.Lazy.Char8              as L8
-import           Data.Maybe
+import           Data.Maybe                 (mapMaybe)
 import           Data.Set                   (fromList, toList)
 import           Text.HTML.TagSoup
-import           Network.URI
 
 scrape :: Url -> ByteString -> [Url]
 scrape (Url baseUrl) page = do
@@ -25,16 +25,3 @@ scrape (Url baseUrl) page = do
            . filter (not . L8.null)
            . map (fromAttrib "href")
            $ interests
-
-parseUrl :: String -> String -> Maybe Url
-parseUrl base c =
-    case parseAbsoluteURI c of
-        Just absUrl -> return (unpack absUrl)
-        Nothing ->
-            case parseRelativeReference c of
-                Nothing -> error $ show c
-                Just relRef -> return . unpack . relativeTo relRef $ (fromJust $ parseURI base)
-    where
-    unpack x =
-        let noFrag = x { uriFragment = "" }
-        in Url . uriToString id noFrag $ ""

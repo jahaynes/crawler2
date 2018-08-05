@@ -5,6 +5,7 @@ module Main where
 import Crawl
 import CrawlTypes
 import EitherT
+import Url
 
 import qualified Data.Set  as S                 (empty)
 import Network.HTTP.Client          
@@ -17,9 +18,11 @@ main = do
 
     [site] <- getArgs
 
+    let (Just d) = domain (Url site)
+
     http <- newManager (mkManagerSettings (TLSSettingsSimple True False False) Nothing) -- tlsManagerSettings
 
-    x <- runEitherT $ urls [Url site] S.empty http (const True)
+    x <- runEitherT $ urls [Url site] S.empty http (accept d)
 
     case x of
         Left e -> error $ show e
@@ -29,3 +32,10 @@ main = do
 
             --let bs = crawled_getContents c
             --L8.writeFile "./lol" bs
+
+accept :: String -> Url -> Bool
+accept d url =
+    case domain url of
+        Just x -> x == d
+        Nothing -> False
+
