@@ -13,6 +13,8 @@ import Network.HTTP.Client.TLS      (mkManagerSettings)
 import Network.Connection           (TLSSettings (TLSSettingsSimple))
 import System.Environment           (getArgs)
 
+managerSettings = mkManagerSettings (TLSSettingsSimple True False False) Nothing -- tlsManagerSettings
+
 main :: IO ()
 main = do
 
@@ -20,7 +22,7 @@ main = do
 
     let (Just d) = domain (Url site)
 
-    http <- newManager (mkManagerSettings (TLSSettingsSimple True False False) Nothing) -- tlsManagerSettings
+    http <- newManager managerSettings
 
     x <- runEitherT $ urls [Url site] S.empty http (accept d)
 

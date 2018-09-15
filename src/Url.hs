@@ -4,12 +4,13 @@ import CrawlTypes          (Url (Url))
 
 import Control.Applicative ((<|>))
 import Control.Monad.Fail  (MonadFail, fail)
+import Debug.Trace
 import Network.URI         (parseAbsoluteURI, parseRelativeReference, parseURI, relativeTo, uriFragment, uriToString)
 import Prelude      hiding (fail)
 import Text.Parsec         (many1, noneOf, parse, string, try)
 
 parseUrl :: MonadFail m => String -> String -> m Url
-parseUrl base c =
+parseUrl base c = trace (show (base, c)) $ do
     case parseAbsoluteURI c of
         Just absUrl -> return (unpack absUrl)
         Nothing ->
@@ -29,4 +30,7 @@ domain (Url u) = case parse pDomain "" u of
                      Left l -> fail (show l)
                      Right r -> return r
     where
-    pDomain = (try (string "http://") <|> string "https://") *> many1 (noneOf "/")
+    pDomain = protocol *> many1 (noneOf "/")
+        where
+        protocol = try (string "http://")
+               <|> string "https://"

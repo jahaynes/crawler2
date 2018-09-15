@@ -39,6 +39,12 @@ urls (u:rls) done http urlCheck
             crawledPage = crawled_getContents $ x
             urls' = filter urlCheck . scrape crawledUrl $ crawledPage
 
+            
+        liftTry $ do
+            mapM_ print urls'
+            
+            undefined
+            
         liftTry $ print $ length urls'
 
         urls (urls' ++ rls) (S.insert u done) http urlCheck
