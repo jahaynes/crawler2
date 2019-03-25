@@ -3,8 +3,9 @@
 module Main where
 
 import Crawl
+import Crawler
 import CrawlTypes
-import EitherT
+import IOCrawler
 import Url
 
 import qualified Data.Set  as S                 (empty)
@@ -22,16 +23,7 @@ main = do
 
     http <- newManager (mkManagerSettings (TLSSettingsSimple True False False) Nothing) -- tlsManagerSettings
 
-    x <- runEitherT $ urls [Url site] S.empty http (accept d)
-
-    case x of
-        Left e -> error $ show e
-        Right c -> do
-
-            print $ map crawled_getHistory $ c
-
-            --let bs = crawled_getContents c
-            --L8.writeFile "./lol" bs
+    return ()
 
 accept :: String -> Url -> Bool
 accept d url =

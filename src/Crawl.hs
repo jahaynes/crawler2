@@ -3,8 +3,8 @@
 
 module Crawl where
 
+import Crawler
 import CrawlTypes
-import EitherT
 import Fetch
 import Parse
 
@@ -27,7 +27,7 @@ seed url = Step (Url url) mempty []
 seedu :: Url -> Step
 seedu url = Step url mempty []
 
-urls :: [Url] -> Set Url -> Manager -> (Url -> Bool) -> EitherT SomeException IO [Crawled]
+urls :: Crawler m => [Url] -> Set Url -> Manager -> (Url -> Bool) -> m [Crawled]
 urls      []   !_    _        _ = return []
 urls (u:rls) done http urlCheck
     | u `S.member` done = urls rls done http urlCheck
@@ -39,11 +39,11 @@ urls (u:rls) done http urlCheck
             crawledPage = crawled_getContents $ x
             urls' = filter urlCheck . scrape crawledUrl $ crawledPage
 
-        liftTry $ print $ length urls'
+        undefined -- liftTry $ print $ length urls'
 
         urls (urls' ++ rls) (S.insert u done) http urlCheck
 
-steps :: Manager -> (Url -> Bool) -> Step -> EitherT SomeException IO Crawled
+steps :: Crawler m => Manager -> (Url -> Bool) -> Step -> m Crawled
 steps http urlCheck = go
     where
     go step = do
@@ -52,7 +52,7 @@ steps http urlCheck = go
             Left step' -> go step'
             Right finished -> return finished
 
-runStep :: Manager -> (Url -> Bool) -> Step -> EitherT SomeException IO (Either Step Crawled)
+runStep :: Crawler m => Manager -> (Url -> Bool) -> Step -> m (Either Step Crawled)
 runStep http urlCheck (Step nextUrl cookies history) = do
 
     check (urlCheck nextUrl)
@@ -64,7 +64,7 @@ runStep http urlCheck (Step nextUrl cookies history) = do
         httpFetch http req { redirectCount = 0,
                              proxy = (Just $ Proxy "127.0.0.1" 8080) }
 
-    now <- liftTry getCurrentTime
+    now <- undefined -- liftTry getCurrentTime
 
     let cookies' = evictExpiredCookies (responseCookieJar res <> cookies) now
 
