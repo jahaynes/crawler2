@@ -6,14 +6,17 @@ module Crawl where
 import Crawler
 import CrawlTypes
 import Fetch
-import Parse
+import Scrape
 
 import Control.Exception.Safe       (SomeException)
 import Data.Monoid                  ((<>))
 import Data.Set (Set)
 import qualified Data.Set as S
 import Data.Time                    (getCurrentTime)
-import Network.HTTP.Client
+
+--Too concrete:
+import Network.HTTP.Client          (CookieJar, Proxy (Proxy), Manager, evictExpiredCookies, 
+                                     proxy, redirectCount, responseBody, responseCookieJar)
 
 data Step = Step
           { step_getNextUrl :: Url
@@ -43,36 +46,37 @@ urls (u:rls) done http urlCheck
 
         urls (urls' ++ rls) (S.insert u done) http urlCheck
 
-steps :: Crawler m => Manager -> (Url -> Bool) -> Step -> m Crawled
-steps http urlCheck = go
     where
-    go step = do
-        e <- runStep http urlCheck step
-        case e of
-            Left step' -> go step'
-            Right finished -> return finished
+    steps :: Crawler m => Manager -> (Url -> Bool) -> Step -> m Crawled
+    steps http urlCheck = go
+        where
+        go step = do
+            e <- runStep http urlCheck step
+            case e of
+                Left step' -> go step'
+                Right finished -> return finished
 
-runStep :: Crawler m => Manager -> (Url -> Bool) -> Step -> m (Either Step Crawled)
-runStep http urlCheck (Step nextUrl cookies history) = do
+        runStep :: Crawler m => Manager -> (Url -> Bool) -> Step -> m (Either Step Crawled)
+        runStep http urlCheck (Step nextUrl cookies history) = do
 
-    check (urlCheck nextUrl)
+            check (urlCheck nextUrl)
 
-    res <- do
+            res <- do
 
-        req <- parse nextUrl
+                req <- parseUrl nextUrl
 
-        httpFetch http req { redirectCount = 0,
-                             proxy = (Just $ Proxy "127.0.0.1" 8080) }
+                httpFetch http req { redirectCount = 0,
+                                    proxy = (Just $ Proxy "127.0.0.1" 8080) }
 
-    now <- undefined -- liftTry getCurrentTime
+            now <- undefined -- liftTry getCurrentTime
 
-    let cookies' = evictExpiredCookies (responseCookieJar res <> cookies) now
+            let cookies' = evictExpiredCookies (responseCookieJar res <> cookies) now
 
-        history' = nextUrl : history
+                history' = nextUrl : history
 
-        contents = responseBody res
+                contents = responseBody res
 
-    return $
-        case getRedirect res of
-            Nothing -> Right $ Crawled cookies' history' contents
-            Just redirectUrl -> Left $ Step redirectUrl cookies' history'
+            return $
+                case getRedirect res of
+                    Nothing -> Right $ Crawled cookies' history' contents
+                    Just redirectUrl -> Left $ Step redirectUrl cookies' history'

@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Parse where
+module Scrape where
 
-import CrawlTypes
-import Url
+import CrawlTypes (Url (Url))
+import Url        (parseUrl)
 
 import           Data.ByteString.Lazy       (ByteString)
 import qualified Data.ByteString.Lazy.Char8              as L8

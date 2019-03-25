@@ -1,5 +1,6 @@
 module Url where
 
+import Crawler
 import CrawlTypes          (Url (Url))
 
 import Control.Applicative ((<|>))
