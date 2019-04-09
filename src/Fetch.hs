@@ -13,12 +13,6 @@ import Network.HTTP.Client       (Manager, Request, Response, httpLbs, parseRequ
 import Network.HTTP.Types.Status (statusCode)
 import Safe                      (headMay)
 
---parse :: Crawler m => Url -> m Request
---parse (Url u) = undefined -- liftTry (parseRequest u)
-
-httpFetch :: Crawler m => Manager -> Request -> m (Response b)
-httpFetch http req = undefined -- liftTry (httpLbs req http) -- include http inside Crawler!
-
 check :: Crawler m => Bool -> m ()
 check True  = return ()
 check False = throw "Unacceptable url"

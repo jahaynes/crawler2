@@ -1,11 +1,12 @@
 module Crawler where
 
 import CrawlTypes
-import Network.HTTP.Client (Request, Response)
+import Data.ByteString.Lazy (ByteString)
+import Network.HTTP.Client  (Manager, Request, Response)
 
 class Monad m => Crawler m where
 
-    fetch      :: Url -> m (Response b)
+    fetch      :: Request -> m (Response ByteString)
 
     parseUrl   :: Url -> m Request
 

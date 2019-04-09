@@ -65,8 +65,8 @@ urls (u:rls) done http urlCheck
 
                 req <- parseUrl nextUrl
 
-                httpFetch http req { redirectCount = 0,
-                                    proxy = (Just $ Proxy "127.0.0.1" 8080) }
+                fetch req { redirectCount = 0,
+                                 proxy = (Just $ Proxy "127.0.0.1" 8080) }
 
             now <- undefined -- liftTry getCurrentTime
 
